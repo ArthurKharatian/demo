@@ -1,20 +1,18 @@
 package com.example.demo.service.impl;
 
-import com.example.demo.model.dto.HouseDTO;
+import com.example.demo.exceptions.CustomException;
 import com.example.demo.model.dto.UserDTO;
-import com.example.demo.model.entity.House;
 import com.example.demo.model.entity.User;
+import com.example.demo.model.enums.UserStatus;
 import com.example.demo.model.repository.UserRepository;
 import com.example.demo.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -24,54 +22,52 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final ObjectMapper mapper;
 
+
     @Override
     public UserDTO createUser(UserDTO userDTO) {
+        userRepository.findByEmail(userDTO.getEmail()).ifPresent(
+                h -> {
+                    throw new CustomException("Пользователь с таким email уже существует", HttpStatus.BAD_REQUEST);
+                }
+        );
 
-//        User user = new User();
-//        user.setAge(userDTO.getAge());
-//        user.setFirstName(userDTO.getFirstName());
-//        user.setLastName(userDTO.getLastName());
-//        user.setGender(userDTO.getGender());
+        User house = mapper.convertValue(userDTO, User.class);
+        User save = userRepository.save(house);
 
-        User user = mapper.convertValue(userDTO, User.class);
+        return mapper.convertValue(save, UserDTO.class);
+    }
 
-        user.setCreatedAt(LocalDateTime.now());
+    @Override
+    public UserDTO update(UserDTO userDTO) {
+//        User user = getHouse(userDTO.getName());
 
-        List<House> houses = userDTO.getHouses()
-                .stream()
-                .map(h -> {
-                    House house = new House();
-                    house.setMaterial(h.getMaterial());
-                    house.setFloorsCount(h.getFloorsCount());
-                    try {
-                        house.setBuiltDate(LocalDate.parse(h.getBuiltDate()));
-                    } catch (Exception e) {
-                        log.error(e.getMessage());
-                        throw new RuntimeException(e);
-                    }
-                    return house;
-                })
-                .collect(Collectors.toList());
+//        user.setMaterial(userDTO.getMaterial() == null ? user.getMaterial() : userDTO.getMaterial());
+//        user.setFloorsCount(userDTO.getFloorsCount() == null ? user.getFloorsCount() : userDTO.getFloorsCount());
+////        user.setBuiltDate(StringUtils.isBlank(userDTO.getBuiltDate()) ? user.getBuiltDate() : userDTO.getBuiltDate());
+//        user.setUpdatedAt(LocalDateTime.now());
+//        user.setStatus(UserStatus.UPDATED);
 
-        user.setHouses(houses);
+//        return mapper.convertValue(userRepository.save(user), UserDTO.class);
+        return null;
 
-        User entity = userRepository.save(user);
+    }
 
+    @Override
+    public UserDTO get(String email) {
+        return mapper.convertValue(getUser(email), UserDTO.class);
+    }
 
-        UserDTO result = mapper.convertValue(entity, UserDTO.class);
-        List<HouseDTO> housesDTO = entity.getHouses().stream()
-                .map(h -> {
+    @Override
+    public void delete(String email) {
+        User user = getUser(email);
+        user.setStatus(UserStatus.DELETED);
+        user.setUpdatedAt(LocalDateTime.now());
+        userRepository.save(user);
+    }
 
-                    HouseDTO houseDTO = new HouseDTO();
-                    houseDTO.setMaterial(h.getMaterial());
-                    houseDTO.setFloorsCount(h.getFloorsCount());
-                    houseDTO.setBuiltDate(String.valueOf(h.getBuiltDate()));
-                    return houseDTO;
-                })
-                .collect(Collectors.toList());
-
-        result.setHouses(housesDTO);
-
-        return result;
+    @Override
+    public User getUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException("Пользователь с таким email не найден", HttpStatus.NOT_FOUND));
     }
 }

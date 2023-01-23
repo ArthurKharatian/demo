@@ -1,6 +1,6 @@
 package com.example.demo.model.dto;
 
-import com.example.demo.model.enums.Gender;
+import com.example.demo.model.enums.MaterialType;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,12 +9,11 @@ import lombok.experimental.FieldDefaults;
 @Getter
 @Setter
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserDTO {
+public class HouseDTORequest {
 
-    Integer age;
-    String firstName;
-    String lastName;
-    Gender gender;
-    String email;
+    MaterialType material;
+    String builtDate;
+    Integer floorsCount;
+    String name;
 
 }

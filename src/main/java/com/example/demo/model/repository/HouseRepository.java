@@ -8,9 +8,12 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface HouseRepository extends JpaRepository<House, Long> {
+
+    Optional<House> findByName(String name);
 
     List<House> findAllByMaterial(MaterialType material);
 

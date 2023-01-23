@@ -1,5 +1,6 @@
 package com.example.demo.model.entity;
 
+import com.example.demo.model.enums.HouseStatus;
 import com.example.demo.model.enums.MaterialType;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -8,7 +9,6 @@ import lombok.experimental.FieldDefaults;
 import org.hibernate.annotations.CreationTimestamp;
 
 import javax.persistence.*;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
@@ -25,7 +25,7 @@ public class House {
     MaterialType material;
 
     @Column(name = "built_date")
-    LocalDate builtDate;
+    String builtDate;
 
     @Column(name = "floors_count")
     Integer floorsCount;
@@ -37,7 +37,12 @@ public class House {
     @Column(name = "updated_at")
     LocalDateTime updatedAt;
 
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.ALL)
     User user;
+
+    String name;
+
+    @Enumerated(EnumType.STRING)
+    HouseStatus status = HouseStatus.CREATED;
 
 }

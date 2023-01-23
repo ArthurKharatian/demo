@@ -1,6 +1,7 @@
 package com.example.demo.model.entity;
 
 import com.example.demo.model.enums.Gender;
+import com.example.demo.model.enums.UserStatus;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -29,6 +30,9 @@ public class User {
     @Column(name = "last_name")
     String lastName;
 
+    @Column(unique = true)
+    String email;
+
     @Enumerated(EnumType.STRING)
     Gender gender;
 
@@ -40,5 +44,8 @@ public class User {
 
     @OneToMany(cascade = CascadeType.ALL)
     List<House> houses;
+
+    @Enumerated(EnumType.STRING)
+    UserStatus status;
 
 }
