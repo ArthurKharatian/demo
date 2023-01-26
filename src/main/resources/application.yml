@@ -17,3 +17,7 @@ spring:
     username: postgres
     password: postgres
     driver-class-name: org.postgresql.Driver
+
+timer:
+ duration:
+  value: "0 40 22 1/1 * ?"

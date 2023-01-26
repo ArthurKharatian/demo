@@ -10,14 +10,22 @@ import com.example.demo.model.enums.HouseStatus;
 import com.example.demo.model.repository.HouseRepository;
 import com.example.demo.service.HouseService;
 import com.example.demo.service.UserService;
+import com.example.demo.utils.PaginationUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.support.PagedListHolder;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.ui.ModelMap;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -83,6 +91,29 @@ public class HouseServiceImpl implements HouseService {
         HouseDTOResponse response = mapper.convertValue(save, HouseDTOResponse.class);
         response.setUserDTO(mapper.convertValue(user, UserDTO.class));
         return response;
+    }
+
+    @Override
+    public ModelMap getAllHouses(Integer page, Integer perPage, String sort, Sort.Direction order) {
+        Pageable pageRequest = PaginationUtil.getPageRequest(page, perPage, sort, order);
+        Page<House> pageResult = houseRepository.findAll(pageRequest);
+
+        List<HouseDTORequest> content = pageResult.getContent().stream()
+                .map(h -> mapper.convertValue(h, HouseDTORequest.class))
+                .collect(Collectors.toList());
+
+        PagedListHolder<HouseDTORequest> result = new PagedListHolder<>(content);
+
+        result.setPage(page);
+        result.setPageSize(perPage);
+
+        ModelMap map = new ModelMap();
+        map.addAttribute("content", result.getPageList());
+        map.addAttribute("pageNumber", page);
+        map.addAttribute("pageSize", result.getPageSize());
+        map.addAttribute("totalPages", result.getPageCount());
+
+        return map;
     }
 
 

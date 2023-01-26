@@ -23,4 +23,5 @@ public interface HouseRepository extends JpaRepository<House, Long> {
     @Query(value = "select * from houses where houses.material = :material", nativeQuery = true)
     List<House> getHousesNative(@Param("material") MaterialType material);
 
+
 }
