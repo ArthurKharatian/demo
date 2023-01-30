@@ -2,6 +2,7 @@ package com.example.demo.model.entity;
 
 import com.example.demo.model.enums.HouseStatus;
 import com.example.demo.model.enums.MaterialType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,6 +20,7 @@ import java.time.LocalDateTime;
 public class House {
 
     @Id
+    @JsonIgnore
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     Long id;
 
@@ -30,18 +32,22 @@ public class House {
     @Column(name = "floors_count")
     Integer floorsCount;
 
+    @JsonIgnore
     @CreationTimestamp
     @Column(name = "created_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP", updatable = false)
     LocalDateTime createdAt;
 
+    @JsonIgnore
     @Column(name = "updated_at")
     LocalDateTime updatedAt;
 
+    @JsonIgnore
     @ManyToOne(cascade = CascadeType.ALL)
     User user;
 
     String name;
 
+    @JsonIgnore
     @Enumerated(EnumType.STRING)
     HouseStatus status = HouseStatus.CREATED;
 

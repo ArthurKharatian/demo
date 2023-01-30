@@ -45,9 +45,9 @@ public class HouseServiceImpl implements HouseService {
         );
 
         House house = mapper.convertValue(houseDTORequest, House.class);
-        House save = houseRepository.save(house);
+        houseRepository.save(house);
 
-        return mapper.convertValue(save, HouseDTORequest.class);
+        return mapper.convertValue(house, HouseDTORequest.class);
     }
 
     @Override
@@ -114,6 +114,12 @@ public class HouseServiceImpl implements HouseService {
         map.addAttribute("totalPages", result.getPageCount());
 
         return map;
+    }
+
+    public Long multiply(int x, int y) {
+
+        return (long)x * y;
+
     }
 
 
