@@ -78,8 +78,8 @@ public class UserControllerTest {
                         .content(content))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value("test@test.com"))
-                .andExpect(jsonPath("$.lastName").value("test"))
+                .andExpect(jsonPath("$.email").value("test@2test.com"))
+                .andExpect(jsonPath("$.lastName").value("Smith"))
                 .andDo(document(uri.replace("/", "\\")));
     }
 
