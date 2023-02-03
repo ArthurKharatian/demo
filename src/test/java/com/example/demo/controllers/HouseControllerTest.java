@@ -29,7 +29,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @RunWith(SpringRunner.class)
 public class HouseControllerTest {
 
-    private House house = new House();
+    House house = new House();
 
     {
         house.setId(2L);
@@ -53,6 +53,7 @@ public class HouseControllerTest {
     public void setUp() {
         ConfigurableMockMvcBuilder builder =
                 MockMvcBuilders.webAppContextSetup(this.webApplicationContext)
+                        .alwaysDo(document(" {method-name}/{step}/"))
                         .apply(documentationConfiguration(this.restDocumentation));
         this.mockMvc = builder.build();
     }
