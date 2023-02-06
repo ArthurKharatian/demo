@@ -83,6 +83,8 @@ public class WebSecurityConfig {
                     .and()
                     .authorizeRequests()
                     .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                    .antMatchers(HttpMethod.GET, "/houses").permitAll()
+                    .antMatchers(HttpMethod.POST, "/houses").hasRole("USER")
                     .anyRequest().authenticated();
 
         }
