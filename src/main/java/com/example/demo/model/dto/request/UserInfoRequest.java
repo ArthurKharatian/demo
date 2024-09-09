@@ -6,7 +6,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.SuperBuilder;
 
 import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
 
 @Getter
 @Setter
@@ -21,8 +20,6 @@ public class UserInfoRequest {
     String firstName;
     String lastName;
     String middleName;
-
-    @NotNull
     Integer age;
     Gender gender;
 }
