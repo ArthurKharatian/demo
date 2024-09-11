@@ -54,8 +54,8 @@ public class UserService {
         return mapper.convertValue(user, UserInfoResponse.class);
     }
 
-    private User getUserFromDB(Long id) {
-        return userRepository.findById(id).orElse(new User());
+    public User getUserFromDB(Long id) {
+        return userRepository.findById(id).orElse(null);
     }
 
     public UserInfoResponse updateUser(Long id, UserInfoRequest request) {
@@ -93,5 +93,9 @@ public class UserService {
         return userRepository.findAll().stream()
                 .map(user -> mapper.convertValue(user, UserInfoResponse.class))
                 .collect(Collectors.toList());
+    }
+
+    public User updateUserData(User user) {
+        return userRepository.save(user);
     }
 }
