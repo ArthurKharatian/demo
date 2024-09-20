@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.exceptions.CustomException;
 import com.example.demo.model.db.entity.User;
 import com.example.demo.model.db.repository.UserRepository;
 import com.example.demo.model.dto.request.UserInfoRequest;
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,9 +25,13 @@ public class UserService {
     private final UserRepository userRepository;
 
     public UserInfoResponse createUser(UserInfoRequest request) {
-        if (!EmailValidator.getInstance().isValid(request.getEmail())) {
-            return null;
-        }
+        validateEmail(request);
+
+        userRepository.findByEmailIgnoreCase(request.getEmail())
+                .ifPresent(user -> {
+                    throw new CustomException(String.format("User with email: %s already exists", request.getEmail()), HttpStatus.BAD_REQUEST);
+                });
+
 
         User user = mapper.convertValue(request, User.class);
         user.setCreatedAt(LocalDateTime.now());
@@ -34,6 +40,12 @@ public class UserService {
         User save = userRepository.save(user);
 
         return mapper.convertValue(save, UserInfoResponse.class);
+    }
+
+    private void validateEmail(UserInfoRequest request) {
+        if (!EmailValidator.getInstance().isValid(request.getEmail())) {
+            throw new CustomException("Invalid email format", HttpStatus.BAD_REQUEST);
+        }
     }
 
     public UserInfoResponse getUser(Long id) {
@@ -55,13 +67,11 @@ public class UserService {
     }
 
     public User getUserFromDB(Long id) {
-        return userRepository.findById(id).orElse(null);
+        return userRepository.findById(id).orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
     }
 
     public UserInfoResponse updateUser(Long id, UserInfoRequest request) {
-        if (!EmailValidator.getInstance().isValid(request.getEmail())) {
-            return null;
-        }
+        validateEmail(request);
 
         User user = getUserFromDB(id);
 

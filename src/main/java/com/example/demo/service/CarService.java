@@ -62,7 +62,7 @@ public class CarService {
         if (filter == null) {
             all = carRepository.findAllByStatusNot(pageRequest, CarStatus.DELETED);
         } else {
-            all = carRepository.findAllByStatusNotFiltered(pageRequest, CarStatus.DELETED, filter.toLowerCase());
+            all = carRepository.findAllByStatusNotFiltered(pageRequest, CarStatus.DELETED, filter.toUpperCase());
         }
 
         List<CarInfoResponse> content = all.getContent().stream()
@@ -75,15 +75,7 @@ public class CarService {
     public void addCarToUser(CarToUserRequest request) {
         Car car = carRepository.findById(request.getCarId()).orElse(null);
 
-        if (car == null) {
-            return;
-        }
-
         User userFromDB = userService.getUserFromDB(request.getUserId());
-
-        if (userFromDB == null) {
-            return;
-        }
 
         userFromDB.getCars().add(car);
 
