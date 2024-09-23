@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.exceptions.CustomException;
 import com.example.demo.model.db.entity.Car;
 import com.example.demo.model.db.entity.User;
 import com.example.demo.model.db.repository.CarRepository;
@@ -15,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -41,7 +43,7 @@ public class CarService {
 
     private Car getCarById(Long id) {
         return carRepository.findById(id)
-                .orElse(new Car());
+                .orElseThrow(() -> new CustomException("Car not found", HttpStatus.NOT_FOUND));
     }
 
     public CarInfoResponse updateCar(Long id, CarInfoRequest request) {
@@ -73,7 +75,7 @@ public class CarService {
     }
 
     public void addCarToUser(CarToUserRequest request) {
-        Car car = carRepository.findById(request.getCarId()).orElse(null);
+        Car car = getCarById(request.getCarId());
 
         User userFromDB = userService.getUserFromDB(request.getUserId());
 
