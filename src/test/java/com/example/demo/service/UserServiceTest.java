@@ -17,6 +17,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.List;
 import java.util.Optional;
 
+import static com.example.demo.constants.Constants.API_KEY;
 import static org.junit.Assert.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -44,7 +45,7 @@ public class UserServiceTest {
 
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        UserInfoResponse result = userService.createUser(request);
+        UserInfoResponse result = userService.createUser(API_KEY, request);
 
         assertEquals(user.getId(), result.getId());
     }
@@ -55,7 +56,7 @@ public class UserServiceTest {
         UserInfoRequest request = new UserInfoRequest();
         request.setEmail("test@.test.com");
 
-        userService.createUser(request);
+        userService.createUser(API_KEY, request);
     }
 
     @Test(expected = CustomException.class)
@@ -68,7 +69,7 @@ public class UserServiceTest {
 
         when(userRepository.findByEmailIgnoreCase(anyString())).thenReturn(Optional.of(user));
 
-        userService.createUser(request);
+        userService.createUser(API_KEY, request);
     }
 
 

@@ -25,8 +25,8 @@ public class UserController {
 
     @PostMapping
     @Operation(summary = "Создать пользователя")
-    public UserInfoResponse createUser(@RequestBody @Valid UserInfoRequest request) {
-        return userService.createUser(request);
+    public UserInfoResponse createUser(@RequestHeader("API-KEY") String apiKey, @RequestBody @Valid UserInfoRequest request) {
+        return userService.createUser(apiKey, request);
     }
 
     @GetMapping("/{id}")
@@ -59,6 +59,7 @@ public class UserController {
 //    }
 
     @GetMapping("/all")
+    @Operation(summary = "get")
     public Page<UserInfoResponse> getAllUsers(@RequestParam Integer page,
                                               @RequestParam Integer perPage,
                                               @RequestParam String sort,

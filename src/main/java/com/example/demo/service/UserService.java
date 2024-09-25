@@ -10,21 +10,35 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.validator.routines.EmailValidator;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.example.demo.constants.Constants.validateKey;
 
 @Slf4j
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserService implements UserDetailsService {
     private final ObjectMapper mapper;
     private final UserRepository userRepository;
 
-    public UserInfoResponse createUser(UserInfoRequest request) {
+    @Value("${app.base-url}")
+    private String baseUrl;
+
+    public UserInfoResponse createUser(String apiKey, UserInfoRequest request) {
+        log.info(baseUrl);
+        validateKey(apiKey);
         validateEmail(request);
 
         userRepository.findByEmailIgnoreCase(request.getEmail())
@@ -46,6 +60,11 @@ public class UserService {
         if (!EmailValidator.getInstance().isValid(request.getEmail())) {
             throw new CustomException("Invalid email format", HttpStatus.BAD_REQUEST);
         }
+    }
+
+    public User getUser(String email) {
+        return userRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
     }
 
     public UserInfoResponse getUser(Long id) {
@@ -107,5 +126,15 @@ public class UserService {
 
     public User updateUserData(User user) {
         return userRepository.save(user);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+        User user = getUser(email);
+        log.info(String.format("User [EMAIL: %s] found in db", email));
+
+        Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
+        return new org.springframework.security.core.userdetails.User(user.getEmail(),
+                user.getPassword(), authorities);
     }
 }
