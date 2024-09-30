@@ -6,6 +6,8 @@ import com.example.demo.model.db.repository.UserRepository;
 import com.example.demo.model.dto.request.UserInfoRequest;
 import com.example.demo.model.dto.response.UserInfoResponse;
 import com.example.demo.model.enums.UserStatus;
+import com.example.demo.remote.clients.RemoteClient;
+import com.example.demo.service.kafka.NotifyService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +24,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.example.demo.constants.Constants.validateKey;
@@ -32,6 +35,8 @@ import static com.example.demo.constants.Constants.validateKey;
 public class UserService implements UserDetailsService {
     private final ObjectMapper mapper;
     private final UserRepository userRepository;
+    private final RemoteClient remoteClient;
+    private final NotifyService notifyService;
 
     @Value("${app.base-url}")
     private String baseUrl;
@@ -52,6 +57,8 @@ public class UserService implements UserDetailsService {
         user.setStatus(UserStatus.CREATED);
 
         User save = userRepository.save(user);
+
+        notifyService.sendNotification("User created");
 
         return mapper.convertValue(save, UserInfoResponse.class);
     }
@@ -136,5 +143,14 @@ public class UserService implements UserDetailsService {
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
         return new org.springframework.security.core.userdetails.User(user.getEmail(),
                 user.getPassword(), authorities);
+    }
+
+    public void getYaUser() {
+        UserInfoResponse yaUser = remoteClient.getYaUser(1L, UUID.randomUUID().toString());
+    }
+
+    public void invalidateSessions() {
+        log.info("Invalidation start");
+        log.info("Invalidation end");
     }
 }
